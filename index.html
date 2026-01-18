@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Diamond Clicker Pro</title>
+    <title>Diamond Clicker Pro + Promo</title>
     <style>
         :root {
             --bg: #0f1012;
@@ -26,7 +26,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Верхняя панель */
         .header {
             padding: 25px 20px;
             text-align: center;
@@ -38,7 +37,6 @@
         .balance { font-size: 48px; font-weight: 800; color: var(--gold); margin: 5px 0; text-shadow: 0 0 15px rgba(243, 186, 47, 0.3); }
         .income-rate { color: #4ade80; font-size: 14px; background: rgba(74, 222, 128, 0.1); padding: 4px 12px; border-radius: 20px; display: inline-block; }
 
-        /* Игровая зона */
         .main-stage {
             flex-grow: 1;
             display: flex;
@@ -53,27 +51,17 @@
             height: 240px;
             background: radial-gradient(circle, #2d333d 0%, #171a21 100%);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            display: flex; align-items: center; justify-content: center;
             border: 8px solid #22262e;
             box-shadow: 0 0 40px rgba(0,0,0,0.6);
             transition: transform 0.05s;
         }
 
         .click-target:active { transform: scale(0.92); }
-        .click-target img { width: 70%; pointer-events: none; }
 
-        /* Вылетающие цифры */
         .floating-text {
-            position: absolute;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 10;
+            position: absolute; color: white; font-weight: bold; font-size: 24px;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
         }
 
         @keyframes floatUp {
@@ -81,13 +69,11 @@
             100% { opacity: 0; transform: translateY(-100px); }
         }
 
-        /* Энергия */
-        .energy-container { width: 85%; margin-bottom: 25px; }
+        .energy-container { width: 85%; margin: 0 auto 25px auto; }
         .energy-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; color: #aaa; }
         .energy-bar { height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
         #energy-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #0055ff); width: 100%; transition: width 0.2s; }
 
-        /* Магазин */
         .shop {
             background: var(--card);
             padding: 20px;
@@ -115,6 +101,18 @@
         .item-price { font-size: 16px; color: var(--gold); font-weight: bold; }
         .item-bonus { font-size: 10px; color: #4ade80; }
         .item.locked { opacity: 0.5; }
+        
+        .promo-btn {
+            grid-column: 1 / 3;
+            background: linear-gradient(90deg, #1c1f26, #2d333d);
+            border: 1px dashed var(--gold);
+            color: var(--gold);
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -141,17 +139,20 @@
         </div>
     </div>
 
-    <div class="shop" id="shop-grid">
-        </div>
+    <div class="shop">
+        <div class="promo-btn" onclick="activatePromo()">🎁 ВВЕСТИ ПРОМОКОД</div>
+        
+        <div id="shop-grid" style="display: contents;"></div>
+    </div>
 
 <script>
-    // Настройки игры
     let state = JSON.parse(localStorage.getItem('mega_clicker_save')) || {
         balance: 0,
         pps: 0,
         clickPower: 1,
         energy: 1000,
         maxEnergy: 1000,
+        usedPromos: [], // Храним использованные коды
         items: [
             { id: 'it1', name: 'Мульти-клик', price: 50, bonus: 1, type: 'click' },
             { id: 'it2', name: 'Авто-кликер', price: 100, bonus: 1, type: 'idle' },
@@ -162,28 +163,19 @@
         ]
     };
 
-    const balanceEl = document.getElementById('balance');
-    const ppsEl = document.getElementById('pps');
-    const energyText = document.getElementById('energy-text');
-    const energyFill = document.getElementById('energy-fill');
-    const clicker = document.getElementById('clicker');
-    const shopGrid = document.getElementById('shop-grid');
-
-    function save() {
-        localStorage.setItem('mega_clicker_save', JSON.stringify(state));
-    }
+    function save() { localStorage.setItem('mega_clicker_save', JSON.stringify(state)); }
 
     function updateUI() {
-        balanceEl.innerText = Math.floor(state.balance).toLocaleString();
-        ppsEl.innerText = state.pps.toLocaleString();
-        energyText.innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
-        energyFill.style.width = (state.energy / state.maxEnergy * 100) + '%';
-        
+        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+        document.getElementById('pps').innerText = state.pps.toLocaleString();
+        document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
+        document.getElementById('energy-fill').style.width = (state.energy / state.maxEnergy * 100) + '%';
         renderShop();
     }
 
     function renderShop() {
-        shopGrid.innerHTML = '';
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
         state.items.forEach(item => {
             const isLocked = state.balance < item.price;
             const div = document.createElement('div');
@@ -194,59 +186,74 @@
                 <div class="item-bonus">${item.type === 'idle' ? '+' + item.bonus + '/сек' : 'Улучшить'}</div>
             `;
             div.onclick = () => buy(item);
-            shopGrid.appendChild(div);
+            grid.appendChild(div);
         });
     }
 
+    // ЛОГИКА ПРОМОКОДОВ
+    function activatePromo() {
+        const code = prompt("Введите промокод:").toUpperCase();
+        
+        if (state.usedPromos.includes(code)) {
+            alert("Вы уже использовали этот код!");
+            return;
+        }
+
+        if (code === "ADMIN777") {
+            state.balance += 1000000;
+            state.usedPromos.push(code);
+            alert("Админ-ресурс активирован! +1,000,000 🪙");
+        } 
+        else if (code === "START") {
+            state.balance += 5000;
+            state.usedPromos.push(code);
+            alert("Стартовый бонус! +5,000 🪙");
+        }
+        else {
+            alert("Неверный или несуществующий код");
+        }
+        
+        updateUI();
+        save();
+    }
+
+    // Анимация клика
     function createFloatingText(x, y) {
         const text = document.createElement('div');
         text.className = 'floating-text';
         text.innerText = `+${state.clickPower}`;
-        text.style.left = `${x}px`;
-        text.style.top = `${y}px`;
+        text.style.left = `${x}px`; text.style.top = `${y}px`;
         document.body.appendChild(text);
         setTimeout(() => text.remove(), 800);
     }
 
-    // Клик
-    clicker.addEventListener('touchstart', (e) => {
+    document.getElementById('clicker').addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (state.energy >= state.clickPower) {
             state.balance += state.clickPower;
             state.energy -= state.clickPower;
-            
             const touch = e.touches[0];
             createFloatingText(touch.clientX, touch.clientY);
-            
             updateUI();
             save();
         }
     });
 
-    // Покупка
     function buy(item) {
         if (state.balance >= item.price) {
             state.balance -= item.price;
-            
             if (item.type === 'click') state.clickPower += item.bonus;
             if (item.type === 'idle') state.pps += item.bonus;
-            if (item.type === 'energy') {
-                state.maxEnergy += item.bonus;
-                state.energy = state.maxEnergy;
-            }
-
+            if (item.type === 'energy') { state.maxEnergy += item.bonus; state.energy = state.maxEnergy; }
             item.price = Math.floor(item.price * 1.7);
             updateUI();
             save();
         }
     }
 
-    // Цикл игры (секундный)
     setInterval(() => {
         state.balance += state.pps;
-        if (state.energy < state.maxEnergy) {
-            state.energy = Math.min(state.maxEnergy, state.energy + (state.maxEnergy * 0.01)); 
-        }
+        if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + (state.maxEnergy * 0.01));
         updateUI();
         save();
     }, 1000);
