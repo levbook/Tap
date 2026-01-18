@@ -3,178 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Clone Pro</title>
+    <title>Hamster Crystal Clicker</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: #1c1f24;
+            --bg: #0a0b0d;
+            --card: #1c1f24;
             --accent: #f3ba2f;
             --text: #ffffff;
+            --gray: #85868a;
         }
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg);
             color: var(--text);
             font-family: 'Arial', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            justify-content: space-between;
+            overflow: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
+
         /* Шапка */
         .header {
-            background: var(--card-bg);
             padding: 20px;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 15px rgba(243, 186, 47, 0.2);
+            text-align: center;
+            background: linear-gradient(to bottom, #1c1f24, #0a0b0d);
         }
-        .balance-box { font-size: 40px; font-weight: bold; color: var(--accent); margin-bottom: 5px; }
-        .profit-text { font-size: 14px; color: #888; }
+        .balance-container {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .profit-info {
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 5px;
+        }
 
-        /* Центральная часть */
-        .main-game { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .circle-outer {
-            width: 250px; height: 250px;
-            background: #32363c;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: 10px solid #282b30;
-            box-shadow: 0 0 30px rgba(243, 186, 47, 0.1);
+        /* Игровая зона */
+        .game-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        #click-target {
-            width: 220px; height: 220px;
+        .circle-bg {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #2d3139 0%, #0a0b0d 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 4px solid #1c1f24;
+        }
+        #click-btn {
+            width: 220px;
+            height: 220px;
             background: radial-gradient(circle, #f3ba2f 0%, #a87f1a 100%);
             border-radius: 50%;
             font-size: 100px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: transform 0.05s;
+            transition: transform 0.05s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border: none;
         }
-        #click-target:active { transform: scale(0.92); }
+        #click-btn:active { transform: scale(0.95); }
 
         /* Энергия */
-        .energy-section { width: 80%; margin-bottom: 20px; }
-        .energy-bar { height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-top: 8px; }
-        #energy-fill { height: 100%; background: var(--accent); width: 100%; transition: width 0.2s; }
+        .energy-box {
+            width: 85%;
+            margin: 20px auto;
+        }
+        .energy-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .energy-bar {
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f3ba2f, #ffea00);
+            width: 100%;
+            transition: width 0.3s;
+        }
 
-        /* Магазин внизу */
-        .shop {
-            background: var(--card-bg);
+        /* Магазин */
+        .shop-container {
+            background: var(--card);
+            height: 300px;
+            overflow-y: auto;
             padding: 20px;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            border-top-left-radius: 25px;
-            border-top-right-radius: 25px;
+            gap: 12px;
         }
-        .upgrade-btn {
+        .upgrade-card {
             background: #282b30;
-            border: 1px solid #444;
-            color: white;
+            border-radius: 16px;
             padding: 12px;
-            border-radius: 15px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #3d4147;
         }
-        .upgrade-btn b { color: var(--accent); display: block; font-size: 16px; }
-        .upgrade-btn span { font-size: 11px; color: #aaa; }
-        .upgrade-btn:disabled { opacity: 0.5; }
+        .upgrade-card.disabled { opacity: 0.5; }
+        .upgrade-name { font-size: 13px; color: var(--gray); font-weight: bold; }
+        .upgrade-price { font-size: 16px; color: var(--accent); margin: 5px 0; }
+        .upgrade-bonus { font-size: 11px; color: #4ade80; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="balance-box">🪙 <span id="balance">0</span></div>
-    <div class="profit-text">Прибыль в час: +<span id="pph">0</span></div>
+    <div class="balance-container">🪙 <span id="balance">0</span></div>
+    <div class="profit-info">Прибыль в час: +<span id="pph">0</span></div>
 </div>
 
-<div class="main-game">
-    <div class="circle-outer">
-        <div id="click-target">🐹</div>
+<div class="game-area">
+    <div class="circle-bg">
+        <button id="click-btn">🐹</button>
     </div>
 </div>
 
-<div class="energy-section">
-    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+<div class="energy-box">
+    <div class="energy-stats">
         <span>⚡ Энергия</span>
-        <span id="energy-val">1000/1000</span>
+        <span id="energy-text">1000/1000</span>
     </div>
-    <div class="energy-bar"><div id="energy-fill"></div></div>
+    <div class="energy-bar">
+        <div id="energy-fill"></div>
+    </div>
 </div>
 
-<div class="shop">
-    <div class="upgrade-btn" onclick="buy('click')">
-        <span>Мулти-клик</span>
-        <b id="cost-click">50</b>
+<div class="shop-container" id="shop">
     </div>
-    <div class="upgrade-btn" onclick="buy('mine')">
-        <span>Майнинг (ПС)</span>
-        <b id="cost-mine">100</b>
-    </div>
-</div>
 
 <script>
-    // Инициализация данных (загрузка из памяти или дефолт)
-    let data = JSON.parse(localStorage.getItem('hamsterSave')) || {
+    // Все данные игры
+    let state = JSON.parse(localStorage.getItem('hamster_pro_save')) || {
         balance: 0,
-        clickPower: 1,
         income: 0,
+        clickPower: 1,
         energy: 1000,
         maxEnergy: 1000,
-        costs: { click: 50, mine: 100 }
+        upgrades: {
+            tap: { name: "Мульти-клик", price: 50, bonus: 1, type: "click" },
+            battery: { name: "Батарея", price: 100, bonus: 500, type: "energy" },
+            farm: { name: "Ферма", price: 150, bonus: 2, type: "idle" },
+            miner: { name: "Майнер", price: 1000, bonus: 10, type: "idle" },
+            ceo: { name: "Директор", price: 5000, bonus: 40, type: "idle" },
+            bank: { name: "Инвестиции", price: 20000, bonus: 150, type: "idle" }
+        }
     };
 
     function save() {
-        localStorage.setItem('hamsterSave', JSON.stringify(data));
+        localStorage.setItem('hamster_pro_save', JSON.stringify(state));
     }
 
     function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(data.balance);
-        document.getElementById('pph').innerText = data.income * 3600; // Показываем за час
-        document.getElementById('energy-val').innerText = `${Math.floor(data.energy)}/${data.maxEnergy}`;
-        document.getElementById('energy-fill').style.width = (data.energy / data.maxEnergy * 100) + '%';
-        document.getElementById('cost-click').innerText = data.costs.click;
-        document.getElementById('cost-mine').innerText = data.costs.mine;
+        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+        document.getElementById('pph').innerText = (state.income * 3600).toLocaleString();
+        document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
+        document.getElementById('energy-fill').style.width = (state.energy / state.maxEnergy * 100) + '%';
+        renderShop();
     }
 
-    // Обработка клика
-    const btn = document.getElementById('click-target');
-    btn.addEventListener('touchstart', (e) => {
+    function renderShop() {
+        const shop = document.getElementById('shop');
+        shop.innerHTML = '';
+        for (let id in state.upgrades) {
+            const item = state.upgrades[id];
+            const card = document.createElement('div');
+            card.className = `upgrade-card ${state.balance < item.price ? 'disabled' : ''}`;
+            card.onclick = () => buy(id);
+            card.innerHTML = `
+                <div class="upgrade-name">${item.name}</div>
+                <div class="upgrade-price">🪙 ${item.price.toLocaleString()}</div>
+                <div class="upgrade-bonus">${item.type === 'idle' ? '+' + item.bonus + '/сек' : 'Прокачка'}</div>
+            `;
+            shop.appendChild(card);
+        }
+    }
+
+    // Клик по хомяку
+    document.getElementById('click-btn').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if (data.energy >= data.clickPower) {
-            data.balance += data.clickPower;
-            data.energy -= data.clickPower;
+        if (state.energy >= state.clickPower) {
+            state.balance += state.clickPower;
+            state.energy -= state.clickPower;
             updateUI();
             save();
         }
     });
 
-    // Покупка
-    window.buy = function(type) {
-        if (type === 'click' && data.balance >= data.costs.click) {
-            data.balance -= data.costs.click;
-            data.clickPower += 1;
-            data.costs.click = Math.floor(data.costs.click * 1.8);
-        } else if (type === 'mine' && data.balance >= data.costs.mine) {
-            data.balance -= data.costs.mine;
-            data.income += 1;
-            data.costs.mine = Math.floor(data.costs.mine * 1.5);
+    // Логика покупок
+    function buy(id) {
+        const item = state.upgrades[id];
+        if (state.balance >= item.price) {
+            state.balance -= item.price;
+            
+            if (item.type === 'click') state.clickPower += item.bonus;
+            if (item.type === 'energy') {
+                state.maxEnergy += item.bonus;
+                state.energy = state.maxEnergy;
+            }
+            if (item.type === 'idle') state.income += item.bonus;
+
+            item.price = Math.floor(item.price * 1.6);
+            updateUI();
+            save();
         }
-        updateUI();
-        save();
     }
 
-    // Таймер: доход и регенерация энергии
+    // Таймер (Доход + Регенерация энергии)
     setInterval(() => {
-        data.balance += data.income;
-        if (data.energy < data.maxEnergy) data.energy += 1.5;
+        state.balance += state.income;
+        if (state.energy < state.maxEnergy) {
+            state.energy = Math.min(state.maxEnergy, state.energy + 2);
+        }
         updateUI();
         save();
     }, 1000);
 
+    // Первый запуск
     updateUI();
 </script>
 
