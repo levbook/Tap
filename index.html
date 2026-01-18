@@ -3,250 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Crystal Clicker</title>
+    <title>Hamster Admin Edition</title>
     <style>
         :root {
-            --bg: #0a0b0d;
-            --card: #1c1f24;
-            --accent: #f3ba2f;
-            --text: #ffffff;
-            --gray: #85868a;
+            --bg: #0a0b0d; --card: #1c1f24; --accent: #f3ba2f; --text: #ffffff; --blue: #0077ff;
         }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; overflow: hidden; }
+        
+        /* Экран регистрации */
+        #auth-screen {
+            position: fixed; inset: 0; background: var(--bg); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
-
-        /* Шапка */
-        .header {
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(to bottom, #1c1f24, #0a0b0d);
+        input {
+            width: 80%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333;
+            background: #1c1f24; color: white; outline: none;
         }
-        .balance-container {
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .profit-info {
-            color: var(--gray);
-            font-size: 14px;
-            margin-top: 5px;
+        .btn-main {
+            background: var(--accent); color: black; padding: 15px 40px; border-radius: 10px;
+            font-weight: bold; border: none; cursor: pointer; margin-top: 10px;
         }
 
-        /* Игровая зона */
-        .game-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .circle-bg {
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, #2d3139 0%, #0a0b0d 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            border: 4px solid #1c1f24;
-        }
-        #click-btn {
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, #f3ba2f 0%, #a87f1a 100%);
-            border-radius: 50%;
-            font-size: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.05s ease;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border: none;
-        }
-        #click-btn:active { transform: scale(0.95); }
+        /* Основной интерфейс */
+        .header { padding: 15px; background: var(--card); display: flex; justify-content: space-between; align-items: center; }
+        .nickname { display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .verify-icon { width: 18px; height: 18px; fill: var(--blue); }
 
-        /* Энергия */
-        .energy-box {
-            width: 85%;
-            margin: 20px auto;
-        }
-        .energy-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        .energy-bar {
-            height: 12px;
-            background: #222;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        #energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f3ba2f, #ffea00);
-            width: 100%;
-            transition: width 0.3s;
-        }
+        /* Вкладки */
+        .tabs { display: flex; background: #111; }
+        .tab { flex: 1; padding: 15px; text-align: center; color: #888; border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* Магазин */
-        .shop-container {
-            background: var(--card);
-            height: 300px;
-            overflow-y: auto;
-            padding: 20px;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        .content-section { display: none; height: calc(100vh - 150px); overflow-y: auto; }
+        .content-section.active { display: block; }
+
+        /* Таблица лидеров */
+        .top-list { padding: 20px; }
+        .top-item {
+            display: flex; justify-content: space-between; padding: 15px;
+            background: var(--card); margin-bottom: 10px; border-radius: 10px;
         }
-        .upgrade-card {
-            background: #282b30;
-            border-radius: 16px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #3d4147;
+        .top-rank { color: var(--accent); font-weight: bold; margin-right: 10px; }
+
+        /* Кнопка клика */
+        .click-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        #hamster-circle {
+            width: 200px; height: 200px; background: radial-gradient(circle, #f3ba2f 0%, #a87f1a 100%);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 80px; transition: transform 0.05s; border: 8px solid #222;
         }
-        .upgrade-card.disabled { opacity: 0.5; }
-        .upgrade-name { font-size: 13px; color: var(--gray); font-weight: bold; }
-        .upgrade-price { font-size: 16px; color: var(--accent); margin: 5px 0; }
-        .upgrade-bonus { font-size: 11px; color: #4ade80; }
+        #hamster-circle:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
+<div id="auth-screen">
+    <h2 style="color: var(--accent)">Регистрация</h2>
+    <input type="text" id="reg-nick" placeholder="Введите ник">
+    <input type="password" id="reg-pass" placeholder="Придумайте пароль">
+    <button class="btn-main" onclick="register()">Начать игру</button>
+</div>
+
 <div class="header">
-    <div class="balance-container">🪙 <span id="balance">0</span></div>
-    <div class="profit-info">Прибыль в час: +<span id="pph">0</span></div>
+    <div class="nickname" id="display-nick">
+        User 
+        <span id="admin-badge" style="display:none">
+            <svg class="verify-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM10 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"/></svg>
+        </span>
+    </div>
+    <div style="color: var(--accent); font-weight: bold;">🪙 <span id="balance">0</span></div>
 </div>
 
-<div class="game-area">
-    <div class="circle-bg">
-        <button id="click-btn">🐹</button>
+<div class="tabs">
+    <div class="tab active" onclick="showTab('game', this)">Игра</div>
+    <div class="tab" onclick="showTab('top', this)">Топ</div>
+</div>
+
+<div id="game" class="content-section active">
+    <div class="click-container">
+        <div id="hamster-circle">🐹</div>
+        <div style="margin-top:20px; color:#888">Энергия: <span id="energy">1000</span></div>
     </div>
 </div>
 
-<div class="energy-box">
-    <div class="energy-stats">
-        <span>⚡ Энергия</span>
-        <span id="energy-text">1000/1000</span>
-    </div>
-    <div class="energy-bar">
-        <div id="energy-fill"></div>
-    </div>
+<div id="top" class="content-section">
+    <div class="top-list" id="leaderboard">
+        </div>
 </div>
-
-<div class="shop-container" id="shop">
-    </div>
 
 <script>
-    // Все данные игры
-    let state = JSON.parse(localStorage.getItem('hamster_pro_save')) || {
-        balance: 0,
-        income: 0,
-        clickPower: 1,
+    let state = JSON.parse(localStorage.getItem('h_save')) || {
+        nick: '', 
+        balance: 0, 
         energy: 1000,
-        maxEnergy: 1000,
-        upgrades: {
-            tap: { name: "Мульти-клик", price: 50, bonus: 1, type: "click" },
-            battery: { name: "Батарея", price: 100, bonus: 500, type: "energy" },
-            farm: { name: "Ферма", price: 150, bonus: 2, type: "idle" },
-            miner: { name: "Майнер", price: 1000, bonus: 10, type: "idle" },
-            ceo: { name: "Директор", price: 5000, bonus: 40, type: "idle" },
-            bank: { name: "Инвестиции", price: 20000, bonus: 150, type: "idle" }
+        registered: false
+    };
+
+    // Проверка регистрации
+    if (state.registered) {
+        document.getElementById('auth-screen').style.display = 'none';
+        setupGame();
+    }
+
+    function register() {
+        const nick = document.getElementById('reg-nick').value;
+        const pass = document.getElementById('reg-pass').value;
+        if (nick.length < 2 || pass.length < 3) return alert('Слишком короткий ник или пароль');
+        
+        state.nick = nick;
+        state.registered = true;
+        save();
+        location.reload();
+    }
+
+    function setupGame() {
+        document.getElementById('display-nick').firstChild.textContent = state.nick + ' ';
+        if (state.nick.toLowerCase() === 'admin') {
+            document.getElementById('admin-badge').style.display = 'inline-block';
+        }
+        updateUI();
+    }
+
+    function showTab(tabId, el) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        el.classList.add('active');
+        if(tabId === 'top') renderTop();
+    }
+
+    function renderTop() {
+        const list = document.getElementById('leaderboard');
+        const players = [
+            {n: 'CryptoKing', b: 1500000},
+            {n: 'MoonWalker', b: 850000},
+            {n: state.nick, b: state.balance, isMe: true},
+            {n: 'PavelDurov', b: 500000},
+            {n: 'HamsterLover', b: 120000}
+        ].sort((a, b) => b.b - a.b);
+
+        list.innerHTML = players.map((p, i) => `
+            <div class="top-item" style="${p.isMe ? 'border: 1px solid var(--accent)' : ''}">
+                <div><span class="top-rank">#${i+1}</span> ${p.n} ${p.n.toLowerCase() === 'admin' ? '✅' : ''}</div>
+                <div style="color: var(--accent)">${p.b.toLocaleString()}</div>
+            </div>
+        `).join('');
+    }
+
+    // Клик
+    document.getElementById('hamster-circle').onclick = () => {
+        if (state.energy > 0) {
+            state.balance += 1;
+            state.energy -= 1;
+            updateUI();
+            save();
         }
     };
 
-    function save() {
-        localStorage.setItem('hamster_pro_save', JSON.stringify(state));
-    }
-
     function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
-        document.getElementById('pph').innerText = (state.income * 3600).toLocaleString();
-        document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
-        document.getElementById('energy-fill').style.width = (state.energy / state.maxEnergy * 100) + '%';
-        renderShop();
+        document.getElementById('balance').innerText = state.balance;
+        document.getElementById('energy').innerText = state.energy;
     }
 
-    function renderShop() {
-        const shop = document.getElementById('shop');
-        shop.innerHTML = '';
-        for (let id in state.upgrades) {
-            const item = state.upgrades[id];
-            const card = document.createElement('div');
-            card.className = `upgrade-card ${state.balance < item.price ? 'disabled' : ''}`;
-            card.onclick = () => buy(id);
-            card.innerHTML = `
-                <div class="upgrade-name">${item.name}</div>
-                <div class="upgrade-price">🪙 ${item.price.toLocaleString()}</div>
-                <div class="upgrade-bonus">${item.type === 'idle' ? '+' + item.bonus + '/сек' : 'Прокачка'}</div>
-            `;
-            shop.appendChild(card);
-        }
-    }
+    function save() { localStorage.setItem('h_save', JSON.stringify(state)); }
 
-    // Клик по хомяку
-    document.getElementById('click-btn').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (state.energy >= state.clickPower) {
-            state.balance += state.clickPower;
-            state.energy -= state.clickPower;
-            updateUI();
-            save();
-        }
-    });
-
-    // Логика покупок
-    function buy(id) {
-        const item = state.upgrades[id];
-        if (state.balance >= item.price) {
-            state.balance -= item.price;
-            
-            if (item.type === 'click') state.clickPower += item.bonus;
-            if (item.type === 'energy') {
-                state.maxEnergy += item.bonus;
-                state.energy = state.maxEnergy;
-            }
-            if (item.type === 'idle') state.income += item.bonus;
-
-            item.price = Math.floor(item.price * 1.6);
-            updateUI();
-            save();
-        }
-    }
-
-    // Таймер (Доход + Регенерация энергии)
+    // Регенерация энергии
     setInterval(() => {
-        state.balance += state.income;
-        if (state.energy < state.maxEnergy) {
-            state.energy = Math.min(state.maxEnergy, state.energy + 2);
+        if (state.energy < 1000) {
+            state.energy++;
+            updateUI();
         }
-        updateUI();
-        save();
-    }, 1000);
-
-    // Первый запуск
-    updateUI();
+    }, 2000);
 </script>
-
 </body>
 </html>
