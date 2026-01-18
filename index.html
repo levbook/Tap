@@ -3,177 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hamster Admin Edition</title>
+    <title>Diamond Clicker Pro</title>
     <style>
         :root {
-            --bg: #0a0b0d; --card: #1c1f24; --accent: #f3ba2f; --text: #ffffff; --blue: #0077ff;
-        }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; overflow: hidden; }
-        
-        /* Экран регистрации */
-        #auth-screen {
-            position: fixed; inset: 0; background: var(--bg); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
-        }
-        input {
-            width: 80%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333;
-            background: #1c1f24; color: white; outline: none;
-        }
-        .btn-main {
-            background: var(--accent); color: black; padding: 15px 40px; border-radius: 10px;
-            font-weight: bold; border: none; cursor: pointer; margin-top: 10px;
+            --bg: #0f1012;
+            --card: #1c1f26;
+            --accent: #00d4ff;
+            --gold: #f3ba2f;
+            --text: #ffffff;
         }
 
-        /* Основной интерфейс */
-        .header { padding: 15px; background: var(--card); display: flex; justify-content: space-between; align-items: center; }
-        .nickname { display: flex; align-items: center; gap: 5px; font-weight: bold; }
-        .verify-icon { width: 18px; height: 18px; fill: var(--blue); }
-
-        /* Вкладки */
-        .tabs { display: flex; background: #111; }
-        .tab { flex: 1; padding: 15px; text-align: center; color: #888; border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-        .content-section { display: none; height: calc(100vh - 150px); overflow-y: auto; }
-        .content-section.active { display: block; }
-
-        /* Таблица лидеров */
-        .top-list { padding: 20px; }
-        .top-item {
-            display: flex; justify-content: space-between; padding: 15px;
-            background: var(--card); margin-bottom: 10px; border-radius: 10px;
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .top-rank { color: var(--accent); font-weight: bold; margin-right: 10px; }
 
-        /* Кнопка клика */
-        .click-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        #hamster-circle {
-            width: 200px; height: 200px; background: radial-gradient(circle, #f3ba2f 0%, #a87f1a 100%);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 80px; transition: transform 0.05s; border: 8px solid #222;
+        /* Верхняя панель */
+        .header {
+            padding: 25px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, #1c1f26 0%, #0f1012 100%);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
-        #hamster-circle:active { transform: scale(0.95); }
+
+        .balance-label { color: #8a8a8e; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .balance { font-size: 48px; font-weight: 800; color: var(--gold); margin: 5px 0; text-shadow: 0 0 15px rgba(243, 186, 47, 0.3); }
+        .income-rate { color: #4ade80; font-size: 14px; background: rgba(74, 222, 128, 0.1); padding: 4px 12px; border-radius: 20px; display: inline-block; }
+
+        /* Игровая зона */
+        .main-stage {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .click-target {
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, #2d333d 0%, #171a21 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 8px solid #22262e;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            transition: transform 0.05s;
+        }
+
+        .click-target:active { transform: scale(0.92); }
+        .click-target img { width: 70%; pointer-events: none; }
+
+        /* Вылетающие цифры */
+        .floating-text {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+
+        /* Энергия */
+        .energy-container { width: 85%; margin-bottom: 25px; }
+        .energy-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; color: #aaa; }
+        .energy-bar { height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
+        #energy-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #0055ff); width: 100%; transition: width 0.2s; }
+
+        /* Магазин */
+        .shop {
+            background: var(--card);
+            padding: 20px;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        .item {
+            background: #252932;
+            border: 1px solid #333;
+            border-radius: 18px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .item:active { background: #2d323d; }
+        .item-name { font-size: 12px; color: #8a8a8e; font-weight: 600; }
+        .item-price { font-size: 16px; color: var(--gold); font-weight: bold; }
+        .item-bonus { font-size: 10px; color: #4ade80; }
+        .item.locked { opacity: 0.5; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <h2 style="color: var(--accent)">Регистрация</h2>
-    <input type="text" id="reg-nick" placeholder="Введите ник">
-    <input type="password" id="reg-pass" placeholder="Придумайте пароль">
-    <button class="btn-main" onclick="register()">Начать игру</button>
-</div>
-
-<div class="header">
-    <div class="nickname" id="display-nick">
-        User 
-        <span id="admin-badge" style="display:none">
-            <svg class="verify-icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM10 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"/></svg>
-        </span>
+    <div class="header">
+        <div class="balance-label">Твой баланс</div>
+        <div class="balance" id="balance">0</div>
+        <div class="income-rate">🪙 +<span id="pps">0</span> / сек</div>
     </div>
-    <div style="color: var(--accent); font-weight: bold;">🪙 <span id="balance">0</span></div>
-</div>
 
-<div class="tabs">
-    <div class="tab active" onclick="showTab('game', this)">Игра</div>
-    <div class="tab" onclick="showTab('top', this)">Топ</div>
-</div>
-
-<div id="game" class="content-section active">
-    <div class="click-container">
-        <div id="hamster-circle">🐹</div>
-        <div style="margin-top:20px; color:#888">Энергия: <span id="energy">1000</span></div>
-    </div>
-</div>
-
-<div id="top" class="content-section">
-    <div class="top-list" id="leaderboard">
+    <div class="main-stage">
+        <div class="click-target" id="clicker">
+            <span style="font-size: 100px;">💎</span>
         </div>
-</div>
+    </div>
+
+    <div class="energy-container">
+        <div class="energy-info">
+            <span>⚡ Энергия</span>
+            <span id="energy-text">1000/1000</span>
+        </div>
+        <div class="energy-bar">
+            <div id="energy-fill"></div>
+        </div>
+    </div>
+
+    <div class="shop" id="shop-grid">
+        </div>
 
 <script>
-    let state = JSON.parse(localStorage.getItem('h_save')) || {
-        nick: '', 
-        balance: 0, 
+    // Настройки игры
+    let state = JSON.parse(localStorage.getItem('mega_clicker_save')) || {
+        balance: 0,
+        pps: 0,
+        clickPower: 1,
         energy: 1000,
-        registered: false
+        maxEnergy: 1000,
+        items: [
+            { id: 'it1', name: 'Мульти-клик', price: 50, bonus: 1, type: 'click' },
+            { id: 'it2', name: 'Авто-кликер', price: 100, bonus: 1, type: 'idle' },
+            { id: 'it3', name: 'Бот-ферма', price: 500, bonus: 5, type: 'idle' },
+            { id: 'it4', name: 'Крипто-шахта', price: 2000, bonus: 15, type: 'idle' },
+            { id: 'it5', name: 'Мега-сервер', price: 10000, bonus: 50, type: 'idle' },
+            { id: 'it6', name: 'Энерджи-буст', price: 200, bonus: 500, type: 'energy' }
+        ]
     };
 
-    // Проверка регистрации
-    if (state.registered) {
-        document.getElementById('auth-screen').style.display = 'none';
-        setupGame();
+    const balanceEl = document.getElementById('balance');
+    const ppsEl = document.getElementById('pps');
+    const energyText = document.getElementById('energy-text');
+    const energyFill = document.getElementById('energy-fill');
+    const clicker = document.getElementById('clicker');
+    const shopGrid = document.getElementById('shop-grid');
+
+    function save() {
+        localStorage.setItem('mega_clicker_save', JSON.stringify(state));
     }
 
-    function register() {
-        const nick = document.getElementById('reg-nick').value;
-        const pass = document.getElementById('reg-pass').value;
-        if (nick.length < 2 || pass.length < 3) return alert('Слишком короткий ник или пароль');
+    function updateUI() {
+        balanceEl.innerText = Math.floor(state.balance).toLocaleString();
+        ppsEl.innerText = state.pps.toLocaleString();
+        energyText.innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
+        energyFill.style.width = (state.energy / state.maxEnergy * 100) + '%';
         
-        state.nick = nick;
-        state.registered = true;
-        save();
-        location.reload();
+        renderShop();
     }
 
-    function setupGame() {
-        document.getElementById('display-nick').firstChild.textContent = state.nick + ' ';
-        if (state.nick.toLowerCase() === 'admin') {
-            document.getElementById('admin-badge').style.display = 'inline-block';
-        }
-        updateUI();
+    function renderShop() {
+        shopGrid.innerHTML = '';
+        state.items.forEach(item => {
+            const isLocked = state.balance < item.price;
+            const div = document.createElement('div');
+            div.className = `item ${isLocked ? 'locked' : ''}`;
+            div.innerHTML = `
+                <div class="item-name">${item.name}</div>
+                <div class="item-price">🪙 ${item.price.toLocaleString()}</div>
+                <div class="item-bonus">${item.type === 'idle' ? '+' + item.bonus + '/сек' : 'Улучшить'}</div>
+            `;
+            div.onclick = () => buy(item);
+            shopGrid.appendChild(div);
+        });
     }
 
-    function showTab(tabId, el) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        el.classList.add('active');
-        if(tabId === 'top') renderTop();
-    }
-
-    function renderTop() {
-        const list = document.getElementById('leaderboard');
-        const players = [
-            {n: 'CryptoKing', b: 1500000},
-            {n: 'MoonWalker', b: 850000},
-            {n: state.nick, b: state.balance, isMe: true},
-            {n: 'PavelDurov', b: 500000},
-            {n: 'HamsterLover', b: 120000}
-        ].sort((a, b) => b.b - a.b);
-
-        list.innerHTML = players.map((p, i) => `
-            <div class="top-item" style="${p.isMe ? 'border: 1px solid var(--accent)' : ''}">
-                <div><span class="top-rank">#${i+1}</span> ${p.n} ${p.n.toLowerCase() === 'admin' ? '✅' : ''}</div>
-                <div style="color: var(--accent)">${p.b.toLocaleString()}</div>
-            </div>
-        `).join('');
+    function createFloatingText(x, y) {
+        const text = document.createElement('div');
+        text.className = 'floating-text';
+        text.innerText = `+${state.clickPower}`;
+        text.style.left = `${x}px`;
+        text.style.top = `${y}px`;
+        document.body.appendChild(text);
+        setTimeout(() => text.remove(), 800);
     }
 
     // Клик
-    document.getElementById('hamster-circle').onclick = () => {
-        if (state.energy > 0) {
-            state.balance += 1;
-            state.energy -= 1;
+    clicker.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (state.energy >= state.clickPower) {
+            state.balance += state.clickPower;
+            state.energy -= state.clickPower;
+            
+            const touch = e.touches[0];
+            createFloatingText(touch.clientX, touch.clientY);
+            
             updateUI();
             save();
         }
-    };
+    });
 
-    function updateUI() {
-        document.getElementById('balance').innerText = state.balance;
-        document.getElementById('energy').innerText = state.energy;
+    // Покупка
+    function buy(item) {
+        if (state.balance >= item.price) {
+            state.balance -= item.price;
+            
+            if (item.type === 'click') state.clickPower += item.bonus;
+            if (item.type === 'idle') state.pps += item.bonus;
+            if (item.type === 'energy') {
+                state.maxEnergy += item.bonus;
+                state.energy = state.maxEnergy;
+            }
+
+            item.price = Math.floor(item.price * 1.7);
+            updateUI();
+            save();
+        }
     }
 
-    function save() { localStorage.setItem('h_save', JSON.stringify(state)); }
-
-    // Регенерация энергии
+    // Цикл игры (секундный)
     setInterval(() => {
-        if (state.energy < 1000) {
-            state.energy++;
-            updateUI();
+        state.balance += state.pps;
+        if (state.energy < state.maxEnergy) {
+            state.energy = Math.min(state.maxEnergy, state.energy + (state.maxEnergy * 0.01)); 
         }
-    }, 2000);
+        updateUI();
+        save();
+    }, 1000);
+
+    updateUI();
 </script>
 </body>
 </html>
