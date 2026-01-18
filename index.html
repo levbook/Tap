@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Diamond Clicker Pro + Promo</title>
+    <title>Diamond Clicker Ultimate</title>
     <style>
         :root {
             --bg: #0f1012;
@@ -11,12 +11,13 @@
             --accent: #00d4ff;
             --gold: #f3ba2f;
             --text: #ffffff;
+            --green: #4ade80;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -26,239 +27,232 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Шапка */
         .header {
-            padding: 25px 20px;
+            padding: 20px;
             text-align: center;
             background: linear-gradient(180deg, #1c1f26 0%, #0f1012 100%);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+        .balance { font-size: 42px; font-weight: 800; color: var(--gold); margin: 0; }
+        .income { color: var(--green); font-size: 14px; margin-top: 5px; }
 
-        .balance-label { color: #8a8a8e; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .balance { font-size: 48px; font-weight: 800; color: var(--gold); margin: 5px 0; text-shadow: 0 0 15px rgba(243, 186, 47, 0.3); }
-        .income-rate { color: #4ade80; font-size: 14px; background: rgba(74, 222, 128, 0.1); padding: 4px 12px; border-radius: 20px; display: inline-block; }
-
+        /* Игровая зона */
         .main-stage {
             flex-grow: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
         }
-
         .click-target {
-            width: 240px;
-            height: 240px;
+            width: 220px; height: 220px;
             background: radial-gradient(circle, #2d333d 0%, #171a21 100%);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 8px solid #22262e;
             box-shadow: 0 0 40px rgba(0,0,0,0.6);
             transition: transform 0.05s;
+            font-size: 100px;
+            cursor: pointer;
         }
+        .click-target:active { transform: scale(0.95); }
 
-        .click-target:active { transform: scale(0.92); }
+        /* Энергия */
+        .energy-section { width: 85%; margin: 0 auto 20px auto; }
+        .energy-bar { height: 10px; background: #222; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        #energy-fill { height: 100%; background: var(--accent); width: 100%; transition: width 0.2s; }
 
-        .floating-text {
-            position: absolute; color: white; font-weight: bold; font-size: 24px;
-            pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 10;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
-
-        .energy-container { width: 85%; margin: 0 auto 25px auto; }
-        .energy-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; color: #aaa; }
-        .energy-bar { height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
-        #energy-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #0055ff); width: 100%; transition: width 0.2s; }
-
-        .shop {
+        /* Магазин и Промокоды */
+        .shop-area {
             background: var(--card);
             padding: 20px;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            max-height: 40vh;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            max-height: 45vh;
             overflow-y: auto;
         }
 
-        .item {
+        .promo-box {
             background: #252932;
-            border: 1px solid #333;
-            border-radius: 18px;
             padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--gold);
+        }
+        .promo-box input {
+            width: 60%; padding: 10px; border-radius: 8px; border: none; background: #0f1012; color: white; outline: none;
+        }
+        .promo-box button {
+            width: 35%; padding: 10px; border-radius: 8px; border: none; background: var(--gold); color: black; font-weight: bold;
         }
 
-        .item:active { background: #2d323d; }
-        .item-name { font-size: 12px; color: #8a8a8e; font-weight: 600; }
-        .item-price { font-size: 16px; color: var(--gold); font-weight: bold; }
-        .item-bonus { font-size: 10px; color: #4ade80; }
-        .item.locked { opacity: 0.5; }
-        
-        .promo-btn {
-            grid-column: 1 / 3;
-            background: linear-gradient(90deg, #1c1f26, #2d333d);
-            border: 1px dashed var(--gold);
-            color: var(--gold);
-            padding: 15px;
-            border-radius: 18px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .upgrade-card {
+            background: #252932; padding: 12px; border-radius: 12px; border: 1px solid #333;
+        }
+        .upgrade-card:active { background: #2d323d; }
+        .name { font-size: 12px; color: #888; }
+        .price { font-size: 16px; color: var(--gold); font-weight: bold; margin: 4px 0; }
+        .bonus { font-size: 10px; color: var(--green); }
+        .locked { opacity: 0.5; }
+
+        /* Всплывающие цифры */
+        .pop {
+            position: absolute; color: white; font-weight: bold; pointer-events: none;
+            animation: moveUp 0.6s ease-out forwards;
+        }
+        @keyframes moveUp { 
+            0% { transform: translateY(0); opacity: 1; } 
+            100% { transform: translateY(-80px); opacity: 0; } 
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="balance-label">Твой баланс</div>
-        <div class="balance" id="balance">0</div>
-        <div class="income-rate">🪙 +<span id="pps">0</span> / сек</div>
+<div class="header">
+    <div class="balance" id="balance">0</div>
+    <div class="income">🪙 +<span id="pps">0</span> / сек</div>
+</div>
+
+<div class="main-stage">
+    <div class="click-target" id="clicker">💎</div>
+</div>
+
+<div class="energy-section">
+    <div style="display:flex; justify-content:space-between; font-size:12px">
+        <span>Энергия ⚡</span>
+        <span id="energy-text">1000/1000</span>
+    </div>
+    <div class="energy-bar"><div id="energy-fill"></div></div>
+</div>
+
+<div class="shop-area">
+    <div class="promo-box">
+        <input type="text" id="promo-input" placeholder="Код...">
+        <button onclick="checkPromo()">OK</button>
     </div>
 
-    <div class="main-stage">
-        <div class="click-target" id="clicker">
-            <span style="font-size: 100px;">💎</span>
-        </div>
-    </div>
-
-    <div class="energy-container">
-        <div class="energy-info">
-            <span>⚡ Энергия</span>
-            <span id="energy-text">1000/1000</span>
-        </div>
-        <div class="energy-bar">
-            <div id="energy-fill"></div>
-        </div>
-    </div>
-
-    <div class="shop">
-        <div class="promo-btn" onclick="activatePromo()">🎁 ВВЕСТИ ПРОМОКОД</div>
-        
-        <div id="shop-grid" style="display: contents;"></div>
-    </div>
+    <div class="grid" id="shop-grid"></div>
+</div>
 
 <script>
-    let state = JSON.parse(localStorage.getItem('mega_clicker_save')) || {
-        balance: 0,
-        pps: 0,
-        clickPower: 1,
+    // 1. Данные
+    let data = JSON.parse(localStorage.getItem('game_save_v3')) || {
+        coins: 0,
+        income: 0,
+        click: 1,
         energy: 1000,
         maxEnergy: 1000,
-        usedPromos: [], // Храним использованные коды
+        usedPromos: [],
         items: [
-            { id: 'it1', name: 'Мульти-клик', price: 50, bonus: 1, type: 'click' },
-            { id: 'it2', name: 'Авто-кликер', price: 100, bonus: 1, type: 'idle' },
-            { id: 'it3', name: 'Бот-ферма', price: 500, bonus: 5, type: 'idle' },
-            { id: 'it4', name: 'Крипто-шахта', price: 2000, bonus: 15, type: 'idle' },
-            { id: 'it5', name: 'Мега-сервер', price: 10000, bonus: 50, type: 'idle' },
-            { id: 'it6', name: 'Энерджи-буст', price: 200, bonus: 500, type: 'energy' }
+            { id: 0, n: 'Мульти-клик', p: 50, b: 1, t: 'c' },
+            { id: 1, n: 'Авто-кликер', p: 100, b: 1, t: 'i' },
+            { id: 2, n: 'Ферма', p: 500, b: 5, t: 'i' },
+            { id: 3, n: 'Шахта', p: 2000, b: 20, t: 'i' },
+            { id: 4, n: 'Банк', p: 10000, b: 100, t: 'i' },
+            { id: 5, n: 'Запас энергии', p: 300, b: 500, t: 'e' }
         ]
     };
 
-    function save() { localStorage.setItem('mega_clicker_save', JSON.stringify(state)); }
+    function save() { localStorage.setItem('game_save_v3', JSON.stringify(data)); }
 
+    // 2. Обновление интерфейса
     function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
-        document.getElementById('pps').innerText = state.pps.toLocaleString();
-        document.getElementById('energy-text').innerText = `${Math.floor(state.energy)}/${state.maxEnergy}`;
-        document.getElementById('energy-fill').style.width = (state.energy / state.maxEnergy * 100) + '%';
-        renderShop();
-    }
-
-    function renderShop() {
+        document.getElementById('balance').innerText = Math.floor(data.coins).toLocaleString();
+        document.getElementById('pps').innerText = data.income.toLocaleString();
+        document.getElementById('energy-text').innerText = `${Math.floor(data.energy)}/${data.maxEnergy}`;
+        document.getElementById('energy-fill').style.width = (data.energy / data.maxEnergy * 100) + '%';
+        
         const grid = document.getElementById('shop-grid');
         grid.innerHTML = '';
-        state.items.forEach(item => {
-            const isLocked = state.balance < item.price;
-            const div = document.createElement('div');
-            div.className = `item ${isLocked ? 'locked' : ''}`;
-            div.innerHTML = `
-                <div class="item-name">${item.name}</div>
-                <div class="item-price">🪙 ${item.price.toLocaleString()}</div>
-                <div class="item-bonus">${item.type === 'idle' ? '+' + item.bonus + '/сек' : 'Улучшить'}</div>
+        data.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `upgrade-card ${data.coins < item.p ? 'locked' : ''}`;
+            card.innerHTML = `
+                <div class="name">${item.n}</div>
+                <div class="price">🪙 ${item.p.toLocaleString()}</div>
+                <div class="bonus">${item.t==='i' ? '+'+item.b+'/сек' : 'Улучшить'}</div>
             `;
-            div.onclick = () => buy(item);
-            grid.appendChild(div);
+            card.onclick = () => buyItem(item);
+            grid.appendChild(card);
         });
     }
 
-    // ЛОГИКА ПРОМОКОДОВ
-    function activatePromo() {
-        const code = prompt("Введите промокод:").toUpperCase();
-        
-        if (state.usedPromos.includes(code)) {
-            alert("Вы уже использовали этот код!");
-            return;
-        }
-
-        if (code === "ADMIN777") {
-            state.balance += 1000000;
-            state.usedPromos.push(code);
-            alert("Админ-ресурс активирован! +1,000,000 🪙");
-        } 
-        else if (code === "START") {
-            state.balance += 5000;
-            state.usedPromos.push(code);
-            alert("Стартовый бонус! +5,000 🪙");
-        }
-        else {
-            alert("Неверный или несуществующий код");
-        }
-        
-        updateUI();
-        save();
-    }
-
-    // Анимация клика
-    function createFloatingText(x, y) {
-        const text = document.createElement('div');
-        text.className = 'floating-text';
-        text.innerText = `+${state.clickPower}`;
-        text.style.left = `${x}px`; text.style.top = `${y}px`;
-        document.body.appendChild(text);
-        setTimeout(() => text.remove(), 800);
-    }
-
+    // 3. Клик
     document.getElementById('clicker').addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if (state.energy >= state.clickPower) {
-            state.balance += state.clickPower;
-            state.energy -= state.clickPower;
-            const touch = e.touches[0];
-            createFloatingText(touch.clientX, touch.clientY);
+        if (data.energy >= data.click) {
+            data.coins += data.click;
+            data.energy -= data.click;
+            
+            // Визуальный эффект
+            const t = e.touches[0];
+            const p = document.createElement('div');
+            p.className = 'pop';
+            p.innerText = '+' + data.click;
+            p.style.left = t.clientX + 'px';
+            p.style.top = t.clientY + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+            
             updateUI();
             save();
         }
     });
 
-    function buy(item) {
-        if (state.balance >= item.price) {
-            state.balance -= item.price;
-            if (item.type === 'click') state.clickPower += item.bonus;
-            if (item.type === 'idle') state.pps += item.bonus;
-            if (item.type === 'energy') { state.maxEnergy += item.bonus; state.energy = state.maxEnergy; }
-            item.price = Math.floor(item.price * 1.7);
+    // 4. Покупка
+    function buyItem(item) {
+        if (data.coins >= item.p) {
+            data.coins -= item.p;
+            if (item.t === 'c') data.click += item.b;
+            if (item.t === 'i') data.income += item.b;
+            if (item.t === 'e') { data.maxEnergy += item.b; data.energy = data.maxEnergy; }
+            item.p = Math.floor(item.p * 1.6);
             updateUI();
             save();
         }
     }
 
+    // 5. Промокоды
+    function checkPromo() {
+        const input = document.getElementById('promo-input');
+        const code = input.value.trim().toUpperCase();
+        
+        if (data.usedPromos.includes(code)) {
+            alert("Код уже использован!");
+            return;
+        }
+
+        if (code === "ADMIN777") {
+            data.coins += 1000000;
+            data.usedPromos.push(code);
+            alert("Успешно! +1,000,000");
+        } else if (code === "START") {
+            data.coins += 10000;
+            data.usedPromos.push(code);
+            alert("Успешно! +10,000");
+        } else {
+            alert("Неверный код!");
+        }
+        
+        input.value = '';
+        updateUI();
+        save();
+    }
+
+    // 6. Таймер доходности
     setInterval(() => {
-        state.balance += state.pps;
-        if (state.energy < state.maxEnergy) state.energy = Math.min(state.maxEnergy, state.energy + (state.maxEnergy * 0.01));
+        data.coins += data.income;
+        if (data.energy < data.maxEnergy) {
+            data.energy = Math.min(data.maxEnergy, data.energy + (data.maxEnergy * 0.01));
+        }
         updateUI();
         save();
     }, 1000);
 
     updateUI();
 </script>
+
 </body>
 </html>
