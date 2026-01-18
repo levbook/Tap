@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hamster Clone Pro</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1f24;
+            --accent: #f3ba2f;
+            --text: #ffffff;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: space-between;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Шапка */
+        .header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(243, 186, 47, 0.2);
+        }
+        .balance-box { font-size: 40px; font-weight: bold; color: var(--accent); margin-bottom: 5px; }
+        .profit-text { font-size: 14px; color: #888; }
+
+        /* Центральная часть */
+        .main-game { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .circle-outer {
+            width: 250px; height: 250px;
+            background: #32363c;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 10px solid #282b30;
+            box-shadow: 0 0 30px rgba(243, 186, 47, 0.1);
+        }
+        #click-target {
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, #f3ba2f 0%, #a87f1a 100%);
+            border-radius: 50%;
+            font-size: 100px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: transform 0.05s;
+        }
+        #click-target:active { transform: scale(0.92); }
+
+        /* Энергия */
+        .energy-section { width: 80%; margin-bottom: 20px; }
+        .energy-bar { height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+        #energy-fill { height: 100%; background: var(--accent); width: 100%; transition: width 0.2s; }
+
+        /* Магазин внизу */
+        .shop {
+            background: var(--card-bg);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+        }
+        .upgrade-btn {
+            background: #282b30;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .upgrade-btn b { color: var(--accent); display: block; font-size: 16px; }
+        .upgrade-btn span { font-size: 11px; color: #aaa; }
+        .upgrade-btn:disabled { opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="balance-box">🪙 <span id="balance">0</span></div>
+    <div class="profit-text">Прибыль в час: +<span id="pph">0</span></div>
+</div>
+
+<div class="main-game">
+    <div class="circle-outer">
+        <div id="click-target">🐹</div>
+    </div>
+</div>
+
+<div class="energy-section">
+    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+        <span>⚡ Энергия</span>
+        <span id="energy-val">1000/1000</span>
+    </div>
+    <div class="energy-bar"><div id="energy-fill"></div></div>
+</div>
+
+<div class="shop">
+    <div class="upgrade-btn" onclick="buy('click')">
+        <span>Мулти-клик</span>
+        <b id="cost-click">50</b>
+    </div>
+    <div class="upgrade-btn" onclick="buy('mine')">
+        <span>Майнинг (ПС)</span>
+        <b id="cost-mine">100</b>
+    </div>
+</div>
+
+<script>
+    // Инициализация данных (загрузка из памяти или дефолт)
+    let data = JSON.parse(localStorage.getItem('hamsterSave')) || {
+        balance: 0,
+        clickPower: 1,
+        income: 0,
+        energy: 1000,
+        maxEnergy: 1000,
+        costs: { click: 50, mine: 100 }
+    };
+
+    function save() {
+        localStorage.setItem('hamsterSave', JSON.stringify(data));
+    }
+
+    function updateUI() {
+        document.getElementById('balance').innerText = Math.floor(data.balance);
+        document.getElementById('pph').innerText = data.income * 3600; // Показываем за час
+        document.getElementById('energy-val').innerText = `${Math.floor(data.energy)}/${data.maxEnergy}`;
+        document.getElementById('energy-fill').style.width = (data.energy / data.maxEnergy * 100) + '%';
+        document.getElementById('cost-click').innerText = data.costs.click;
+        document.getElementById('cost-mine').innerText = data.costs.mine;
+    }
+
+    // Обработка клика
+    const btn = document.getElementById('click-target');
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (data.energy >= data.clickPower) {
+            data.balance += data.clickPower;
+            data.energy -= data.clickPower;
+            updateUI();
+            save();
+        }
+    });
+
+    // Покупка
+    window.buy = function(type) {
+        if (type === 'click' && data.balance >= data.costs.click) {
+            data.balance -= data.costs.click;
+            data.clickPower += 1;
+            data.costs.click = Math.floor(data.costs.click * 1.8);
+        } else if (type === 'mine' && data.balance >= data.costs.mine) {
+            data.balance -= data.costs.mine;
+            data.income += 1;
+            data.costs.mine = Math.floor(data.costs.mine * 1.5);
+        }
+        updateUI();
+        save();
+    }
+
+    // Таймер: доход и регенерация энергии
+    setInterval(() => {
+        data.balance += data.income;
+        if (data.energy < data.maxEnergy) data.energy += 1.5;
+        updateUI();
+        save();
+    }, 1000);
+
+    updateUI();
+</script>
+
+</body>
+</html>
